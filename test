@@ -1,0 +1,142 @@
+# Conceptual Python code for structuring GCSE Geography marking
+# This is a simplified framework and not a complete automated marking system.
+
+# Source for AOs and command word principles: Edexcel Geography A Specification
+# AO definitions [cite: 354]
+# Command word definitions [cite: 416]
+
+class MarkSchemeItem:
+    def __init__(self, question_id, max_marks, command_word, aos_targeted, indicative_content=None, levels_descriptors=None, spag_marks=0):
+        self.question_id = question_id
+        self.max_marks = max_marks
+        self.command_word = command_word # e.g., "Explain" [cite: 416]
+        self.aos_targeted = aos_targeted # e.g., {"AO1": 2, "AO2": 2} [cite: 354]
+        self.indicative_content = indicative_content if indicative_content else [] # List of expected points/keywords
+        self.levels_descriptors = levels_descriptors if levels_descriptors else {} # For LBMS, e.g., {1: "Basic understanding...", 2: "Clear understanding..."}
+        self.spag_marks = spag_marks # As per exam paper, e.g., 4 marks in Edexcel Paper 2 for overall paper [cite: 196]
+
+    def __str__(self):
+        return (f"Question ID: {self.question_id}\n"
+                f"Max Marks: {self.max_marks}\n"
+                f"Command Word: {self.command_word}\n"
+                f"AOs: {self.aos_targeted}\n"
+                f"SPaG Marks applicable: {self.spag_marks > 0}")
+
+class StudentResponse:
+    def __init__(self, student_id, question_id, answer_text, awarded_marks=None, marker_comments=""):
+        self.student_id = student_id
+        self.question_id = question_id
+        self.answer_text = answer_text # Student's actual answer
+        self.awarded_marks = awarded_marks if awarded_marks is not None else {} # e.g., {"AO1": 0, "content": 0, "spag": 0}
+        self.total_awarded = 0
+        self.marker_comments = marker_comments
+
+    def calculate_total_awarded(self):
+        self.total_awarded = sum(self.awarded_marks.values())
+        return self.total_awarded
+
+# --- Example Usage (Conceptual) ---
+
+# Define a mark scheme item based on a hypothetical 8-mark "Evaluate" question
+# This type of question structure is common in Edexcel GCSE Geography papers [cite: 54, 98, 112]
+q1f_evaluate = MarkSchemeItem(
+    question_id="1f_evaluate_urban_solutions",
+    max_marks=8, # As seen in many Edexcel 8-mark questions [cite: 54]
+    command_word="Evaluate", # [cite: 416]
+    aos_targeted={"AO3": 8}, # Primarily AO3 for evaluation [cite: 354]
+    indicative_content=[
+        "Success of bottom-up approaches (e.g., community projects, local materials, small scale).",
+        "Limitations of bottom-up (e.g., funding, scale, consistency).",
+        "Success of top-down approaches (e.g., large infrastructure, government policy, widespread impact).",
+        "Limitations of top-down (e.g., cost, displacement, lack of local consultation).",
+        "Specific examples from a named city required.",
+        "Overall judgement on relative success."
+    ],
+    levels_descriptors={
+        "Level 1 (1-3 marks)": "Basic statements, limited links to problems/solutions. Little or no evaluation. Generic answer.",
+        "Level 2 (4-6 marks)": "Clearer explanation of approaches. Some application to problems. Attempts evaluation, possibly imbalanced. Some specific examples.",
+        "Level 3 (7-8 marks)": "Detailed explanation of approaches. Sustained application to problems. Balanced evaluation with clear judgement. Well-chosen specific examples."
+    },
+    spag_marks=0 # SPaG is often paper-level [cite: 196] or for specific questions indicated on the paper.
+)
+
+print("--- Mark Scheme Item Example ---")
+print(q1f_evaluate)
+
+# --- Conceptual Marking Function (Requires Human Input) ---
+# This is highly simplified. Real marking, especially of text, is complex.
+
+def mark_response_conceptual(response_text, scheme_item):
+    """
+    Conceptual function where a human marker would interact.
+    This function would present the answer and scheme to a human marker.
+    """
+    print(f"\n--- Marking Question: {scheme_item.question_id} ---")
+    print(f"Student Answer: {response_text[:200]}...") # Show snippet of answer
+    print("\nIndicative Content:")
+    for point in scheme_item.indicative_content:
+        print(f"- {point}")
+    
+    print("\nLevels Descriptors:")
+    for level, desc in scheme_item.levels_descriptors.items():
+        print(f"- {level}: {desc}")
+
+    # --- SIMULATED HUMAN MARKING ---
+    # In a real tool, this would be a GUI or interactive prompt for the marker.
+    # The marker reads the student's answer and the scheme item, then assigns marks.
+    
+    awarded = {}
+    # Example for an 8-mark AO3 question
+    # Human marker determines the level based on the descriptors
+    try:
+        level_achieved = int(input(f"Enter Level achieved (1-{len(scheme_item.levels_descriptors)}) based on descriptors: "))
+        marks_for_level = int(input("Enter marks awarded for this level: ")) # Marker decides within the level's mark range
+        
+        if scheme_item.aos_targeted.get("AO3"):
+             awarded["AO3"] = min(marks_for_level, scheme_item.aos_targeted["AO3"]) # Cap at AO3 max for this Q
+        else: # Fallback for other AO structures
+             awarded["content"] = marks_for_level
+
+        comments = input("Enter marker comments: ")
+    except ValueError:
+        print("Invalid input for marks/level.")
+        awarded["content"] = 0 # Default if error
+        comments = "Error in marking input."
+
+    student_submission = StudentResponse(
+        student_id="Student_001",
+        question_id=scheme_item.question_id,
+        answer_text=response_text,
+        awarded_marks=awarded,
+        marker_comments=comments
+    )
+    student_submission.calculate_total_awarded()
+    
+    print(f"Total Marks Awarded for Q {scheme_item.question_id}: {student_submission.total_awarded} / {scheme_item.max_marks}")
+    print(f"Comments: {student_submission.marker_comments}")
+    return student_submission
+
+# Example of a student's (hypothetical) response to q1f_evaluate
+example_student_answer_q1f = (
+    "Top-down solutions in my chosen city, Rio de Janeiro, like the cable car in Complexo do Alemão, "
+    "were good because they helped people get around. However, they were expensive and didn't solve all the favela problems. "
+    "Bottom-up projects, like self-help schemes where residents improve their own homes, are cheaper "
+    "and give people skills. But they are small scale and might not be as strong. "
+    "Overall, I think a mix is best but bottom-up is more sustainable for the people, though top-down can make bigger changes faster if done right."
+)
+
+# Simulate marking this conceptual response
+# marked_q1f = mark_response_conceptual(example_student_answer_q1f, q1f_evaluate)
+# The above line is commented out to prevent blocking execution in a non-interactive environment.
+# To run it, you would need to provide input when prompted.
+
+print("\n--- Notes on Automated Marking ---")
+print("1. True automated marking of extended text in Geography is highly challenging.")
+print("   - Nuance, context, and evaluation are hard for AI to grasp accurately.")
+print("   - Assessing the validity and depth of case study knowledge is complex.")
+print("2. Keyword spotting can be misleading (keywords without understanding).")
+print("3. This 'code' primarily structures the *elements* of a mark scheme.")
+print("4. Human markers are essential for applying the scheme accurately and fairly.")
+print("5. For calculation questions (e.g., Q1bii in PAPER 2- The Human Environment June 2022.pdf [cite: 40]), "
+      "code could be written to check numerical answers and potentially steps if they are structured.")
+print("6. For SPaG, dedicated NLP tools could identify errors, but assessing impact on communication often needs human judgement.")
